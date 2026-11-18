@@ -147,7 +147,7 @@ def convert(pseudocode: str) -> str:
 
 def main(argv: list[str] | None = None, *, stdin: TextIO = sys.stdin, stdout: TextIO = sys.stdout) -> int:
     parser = argparse.ArgumentParser(description="Convert common pseudocode into Python.")
-    parser.add_argument("input", nargs="-", help="input pseudocode file (defaults to stdin)")
+    parser.add_argument("input", nargs="?", help="input pseudocode file (defaults to stdin)")
     parser.add_argument("-o", "--output", help="write Python to this file (defaults to stdout)")
     args = parser.parse_args(argv)
 
