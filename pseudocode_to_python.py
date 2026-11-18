@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Convert a useful, intentionally small subset of pseudocode to Python."""
 
 from __future__ import annotations
 
@@ -11,7 +10,7 @@ from typing import TextIO
 
 
 class ConversionError(ValueError):
-    """Raised when pseudocode block structure is invalid."""
+    pass
 
 
 _FOR_RE = re.compile(
@@ -22,8 +21,6 @@ _ASSIGNMENT_RE = re.compile(r"^(?:SET\s+)?([A-Za-z_]\w*)\s*(?:<-|←|:=|=)\s*(.+
 
 
 def _expression(expression: str) -> str:
-    """Translate common pseudocode operators without changing string literals."""
-    # Split around quoted strings so words inside strings (for example "AND") stay intact.
     pieces = re.split(r'("(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\')', expression)
     replacements = (
         (r"\bAND\b", "and"),
@@ -43,13 +40,7 @@ def _expression(expression: str) -> str:
 
 
 def convert(pseudocode: str) -> str:
-    """Convert pseudocode text to Python source.
-
-    Supported blocks: IF/ELSE/ENDIF, WHILE/ENDWHILE, FOR/ENDFOR, and
-    REPEAT/UNTIL. FOR ranges include their end value, unlike Python's range.
-    """
     output: list[str] = []
-    # Entries are block names; ELSE changes an if entry to else.
     blocks: list[str] = []
     uses_inclusive_range = False
 
@@ -60,7 +51,6 @@ def convert(pseudocode: str) -> str:
         line = original.strip()
         if not line or line.startswith("#") or line.startswith("//"):
             continue
-        # Accept trailing // comments, while not treating slashes in strings as comments.
         line = re.split(r'\s//(?=(?:[^"\']|"[^"]*"|\'[^\']*\')*$)', line, maxsplit=1)[0].rstrip()
         if not line:
             continue
@@ -138,7 +128,6 @@ def convert(pseudocode: str) -> str:
             emit(f"{variable} = {_expression(value)}")
             continue
 
-        # Preserve ordinary Python statements, such as function calls, as-is.
         emit(_expression(line))
 
     if blocks:
